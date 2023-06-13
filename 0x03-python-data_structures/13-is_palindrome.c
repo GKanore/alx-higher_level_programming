@@ -1,52 +1,76 @@
+/*
+ * File: 13-is_palindrome.c
+ */
+
 #include "lists.h"
-#include <stdio.h>
-#include <stdlib.h>
+
+listint_t *reverse_listint(listint_t **head);
+int is_palindrome(listint_t **head);
 
 /**
- * is_palindrome - checks if list is a palindrome
- * @head: pointer to the list under consideration
- * Return: 0 if not, 1 if is
+ * reverse_listint - Reverses a singly-linked listint_t list.
+ * @head: A pointer to the starting node of the list to reverse.
+ *
+ * Return: A pointer to the head of the reversed list.
+ */
+listint_t *reverse_listint(listint_t **head)
+{
+	listint_t *node = *head, *next, *prev = NULL;
+
+	while (node)
+	{
+		next = node->next;
+		node->next = prev;
+		prev = node;
+		node = next;
+	}
+
+	*head = prev;
+	return (*head);
+}
+
+/**
+ * is_palindrome - Checks if a singly linked list is a palindrome.
+ * @head: A pointer to the head of the linked list.
+ *
+ * Return: If the linked list is not a palindrome - 0.
+ *         If the linked list is a palindrome - 1.
  */
 int is_palindrome(listint_t **head)
 {
-	listint_t *temp = NULL, *prev = NULL;
-	int len = 0, i = 0;
-	int *arr;
+	listint_t *tmp, *rev, *mid;
+	size_t size = 0, i;
 
-	arr = malloc(sizeof(int));
-	if (!arr)
-		return (0);
-	if (!*head)
+	if (*head == NULL || (*head)->next == NULL)
 		return (1);
 
-	/* reverse order in list, original order in array */
-	while ((*head)->next != NULL)
+	tmp = *head;
+	while (tmp)
 	{
-		arr[len] = (*head)->n;
-
-		/* reverse list */
-		temp = (*head)->next;
-		(*head)->next = prev;
-		prev = *head;
-
-		/* advance to the next */
-		*head = temp;
-		len++;
+		size++;
+		tmp = tmp->next;
 	}
-	/* take care of the last node */
-	arr[len] = (*head)->n;
-	(*head)->next = prev;
 
-	/* compare original and reversed lists until halfway */
-	while (i < (len + 1) / 2)
+	tmp = *head;
+	for (i = 0; i < (size / 2) - 1; i++)
+		tmp = tmp->next;
+
+	if ((size % 2) == 0 && tmp->n != tmp->next->n)
+		return (0);
+
+	tmp = tmp->next->next;
+	rev = reverse_listint(&tmp);
+	mid = rev;
+
+	tmp = *head;
+	while (rev)
 	{
-		/* if head and tail aren't same, not palindrome */
-		if (arr[i] != (*head)->n)
+		if (tmp->n != rev->n)
 			return (0);
-		/* advance to the next node */
-		*head = (*head)->next;
-		i++;
+		tmp = tmp->next;
+		rev = rev->next;
 	}
+	reverse_listint(&mid);
 
 	return (1);
 }
